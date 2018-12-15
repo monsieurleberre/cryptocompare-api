@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using CryptoCompare.Models.Responses;
@@ -11,7 +10,7 @@ namespace CryptoCompare
 {
     public class HistoryClient : BaseApiClient, IHistoryClient
     {
-        public HistoryClient([NotNull] HttpClient httpClient)
+        public HistoryClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

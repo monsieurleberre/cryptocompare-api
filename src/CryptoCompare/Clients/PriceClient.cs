@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using JetBrains.Annotations;
@@ -13,7 +11,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.PriceClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public PriceClient([NotNull] HttpClient httpClient)
+        public PriceClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

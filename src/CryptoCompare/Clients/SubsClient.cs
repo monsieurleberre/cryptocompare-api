@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using JetBrains.Annotations;
@@ -12,7 +11,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.SubsClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public SubsClient([NotNull] HttpClient httpClient)
+        public SubsClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

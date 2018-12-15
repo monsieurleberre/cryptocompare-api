@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
+
 using CryptoCompareApi.News;
 
 using JetBrains.Annotations;
@@ -16,7 +16,7 @@ namespace CryptoCompare
         private static readonly Lazy<CryptoCompareClient> Lazy =
             new Lazy<CryptoCompareClient>(() => new CryptoCompareClient());
 
-        private readonly HttpClient _httpClient;
+        private readonly IHttpRequestMessageSender _httpSender;
 
         private bool _isDisposed;
 
@@ -25,10 +25,13 @@ namespace CryptoCompare
         /// </summary>
         /// <param name="httpClientHandler">Custom HTTP client handler. Can be used to define proxy settigs</param>
         /// <param name="apiKey">The api key from cryptocompare</param>
-        public CryptoCompareClient([NotNull] HttpClientHandler httpClientHandler, string apiKey = null)
+        /// <param name="throttleDelayMs">Delay imposed between each queries to avoid exceeding CryptoCompare's maximum number of requests per second.</param>
+        public CryptoCompareClient([NotNull] HttpClientHandler httpClientHandler, string apiKey = null, int throttleDelayMs = 0)
         {
             Check.NotNull(httpClientHandler, nameof(httpClientHandler));
-            this._httpClient = new HttpClient(httpClientHandler, true);
+            this._httpSender = throttleDelayMs <= 0
+                              ? new HttpRequestMessageSender(new HttpClient(httpClientHandler, true))
+                              : new ThrottledHttpRequestMessageSender(new HttpClient(httpClientHandler, true), throttleDelayMs);
 
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
@@ -39,15 +42,16 @@ namespace CryptoCompare
         /// <summary>
         /// Initializes a new instance of the CryptoCompare.CryptoCompareClient class.
         /// </summary>
-        public CryptoCompareClient(string apiKey = null)
-            : this(new HttpClientHandler(), apiKey)
+        public CryptoCompareClient(string apiKey = null, int throttleDelayMs = 0)
+            : this(new HttpClientHandler(), apiKey, throttleDelayMs)
         {
         }
 
         public void SetApiKey(string apiKey)
         {
             Check.NotNullOrWhiteSpace(apiKey, nameof(apiKey));
-            this._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", apiKey);
+
+            this._httpSender.SetApiKey(apiKey);
         }
 
         /// <summary>
@@ -62,19 +66,19 @@ namespace CryptoCompare
         /// Gets the client for coins related api endpoints.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.Coins"/>
-        public ICoinsClient Coins => new CoinsClient(this._httpClient);
+        public ICoinsClient Coins => new CoinsClient(this._httpSender);
 
         /// <summary>
         /// Gets the client for exchanges related api endpoints.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.Exchanges"/>
-        public IExchangesClient Exchanges => new ExchangesClient(this._httpClient);
+        public IExchangesClient Exchanges => new ExchangesClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for market history.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.History"/>
-        public IHistoryClient History => new HistoryClient(this._httpClient);
+        public IHistoryClient History => new HistoryClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for "mining" endpoints.
@@ -83,42 +87,42 @@ namespace CryptoCompare
         /// The mining client.
         /// </value>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.MiningClient"/>
-        public IMiningClient Mining => new MiningClient(this._httpClient);
+        public IMiningClient Mining => new MiningClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for news endpoints.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.News"/>
-        public INewsClient News => new NewsClient(this._httpClient);
+        public INewsClient News => new NewsClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for cryptocurrency prices.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.Prices"/>
-        public IPricesClient Prices => new PriceClient(this._httpClient);
+        public IPricesClient Prices => new PriceClient(this._httpSender);
 
         /// <summary>
         /// Gets or sets the client for api calls rate limits.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.RateLimits"/>
-        public IRateLimitClient RateLimits => new RateLimitClient(this._httpClient);
+        public IRateLimitClient RateLimits => new RateLimitClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for "social" endpoints.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.Social"/>
-        public ISocialStatsClient SocialStats => new SocialStatsClient(this._httpClient);
+        public ISocialStatsClient SocialStats => new SocialStatsClient(this._httpSender);
 
         /// <summary>
         /// The subs.
         /// </summary>
-        public ISubsClient Subs => new SubsClient(this._httpClient);
+        public ISubsClient Subs => new SubsClient(this._httpSender);
 
         /// <summary>
         /// Gets the api client for "tops" endpoints.
         /// </summary>
         /// <seealso cref="P:CryptoCompare.ICryptoCompareClient.Tops"/>
-        public ITopListClient Tops => new TopListClient(this._httpClient);
+        public ITopListClient Tops => new TopListClient(this._httpSender);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or
@@ -135,14 +139,12 @@ namespace CryptoCompare
         /// release only unmanaged resources.</param>
         internal virtual void Dispose(bool disposing)
         {
-            if (!this._isDisposed)
+            if (this._isDisposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    this._httpClient?.Dispose();
-                }
-                this._isDisposed = true;
+                this._httpSender?.Dispose();
             }
+            this._isDisposed = true;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -16,7 +15,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.Clients.RateLimitsClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public RateLimitClient([NotNull] HttpClient httpClient)
+        public RateLimitClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

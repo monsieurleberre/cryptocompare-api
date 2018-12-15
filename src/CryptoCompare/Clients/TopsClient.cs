@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using CryptoCompare.Models.Responses;
 
@@ -18,7 +17,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.TopsClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public TopListClient([NotNull] HttpClient httpClient)
+        public TopListClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

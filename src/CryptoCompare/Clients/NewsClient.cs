@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using CryptoCompareApi.News;
@@ -10,7 +9,7 @@ namespace CryptoCompare
 {
     public class NewsClient : BaseApiClient, INewsClient
     {
-        public NewsClient([NotNull] HttpClient httpClient)
+        public NewsClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

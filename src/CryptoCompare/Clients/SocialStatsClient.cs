@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -11,7 +10,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.SocialClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public SocialStatsClient([NotNull] HttpClient httpClient)
+        public SocialStatsClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

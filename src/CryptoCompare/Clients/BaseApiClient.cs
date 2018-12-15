@@ -13,13 +13,13 @@ namespace CryptoCompare
     /// </summary>
     public abstract class BaseApiClient : IApiClient
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpRequestMessageSender _httpClient;
 
         /// <summary>
         /// Initializes a new instance of the CryptoCompare.Clients.BaseApiClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        protected BaseApiClient([NotNull] HttpClient httpClient)
+        protected BaseApiClient([NotNull] IHttpRequestMessageSender httpClient)
         {
             Check.NotNull(httpClient, nameof(httpClient));
             this._httpClient = httpClient;

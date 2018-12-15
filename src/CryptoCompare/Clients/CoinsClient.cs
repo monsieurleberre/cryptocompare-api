@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -15,7 +14,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.Clients.CoinsClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public CoinsClient([NotNull] HttpClient httpClient)
+        public CoinsClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }

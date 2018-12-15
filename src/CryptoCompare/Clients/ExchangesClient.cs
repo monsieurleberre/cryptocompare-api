@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -16,7 +15,7 @@ namespace CryptoCompare
         /// Initializes a new instance of the CryptoCompare.Clients.ExchangesClient class.
         /// </summary>
         /// <param name="httpClient">The HTTP client. This cannot be null.</param>
-        public ExchangesClient([NotNull] HttpClient httpClient)
+        public ExchangesClient([NotNull] IHttpRequestMessageSender httpClient)
             : base(httpClient)
         {
         }
