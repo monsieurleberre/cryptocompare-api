@@ -49,9 +49,7 @@ namespace CryptoCompare
 
         public void SetApiKey(string apiKey)
         {
-            Check.NotNullOrWhiteSpace(apiKey, nameof(apiKey));
-
-            this._httpSender.SetApiKey(apiKey);
+            _httpSender.SetApiKey(apiKey);
         }
 
         /// <summary>
